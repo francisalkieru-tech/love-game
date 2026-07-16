@@ -77,8 +77,10 @@
       display: flex;
       gap: 20px;
       justify-content: center;
+      align-items: center;
       position: relative;
       height: 60px;
+      flex-wrap: nowrap;
     }
 
     button {
@@ -90,6 +92,7 @@
       transition: transform 0.2s, box-shadow 0.2s;
       font-weight: bold;
       white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     #yesBtn {
@@ -103,13 +106,12 @@
       background-color: #1b6fc9;
     }
 
+    /* No button starts inline, right next to Yes. Only becomes
+       position:fixed once JS moves it on hover/tap for the first time. */
     #noBtn {
       background-color: #3a4a63;
       color: #cfe4ff;
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
     }
 
     .hidden {
