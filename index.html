@@ -201,26 +201,44 @@
     }
     createFlowers();
 
+    // Keeps the button fully on-screen on any device (phone, tablet, laptop),
+    // using the actual visible viewport size so it never lands off-screen.
     function moveButton() {
-      const maxWidth = window.innerWidth - noBtn.offsetWidth - 20;
-      const maxHeight = window.innerHeight - noBtn.offsetHeight - 20;
+      const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
 
-      const randomX = Math.max(10, Math.floor(Math.random() * maxWidth));
-      const randomY = Math.max(10, Math.floor(Math.random() * maxHeight));
+      const rect = noBtn.getBoundingClientRect();
+      const margin = 12;
+
+      const maxX = Math.max(0, vw - rect.width - margin * 2);
+      const maxY = Math.max(0, vh - rect.height - margin * 2);
+
+      const randomX = Math.floor(Math.random() * maxX) + margin;
+      const randomY = Math.floor(Math.random() * maxY) + margin;
 
       noBtn.style.position = 'fixed';
       noBtn.style.left = randomX + 'px';
       noBtn.style.top = randomY + 'px';
-
-      noBtn.style.transform = 'none';
+      noBtn.style.margin = '0';
     }
 
+    // Desktop: dodges when the mouse gets near it.
+    // Mobile/touch: dodges when tapped (there's no hover on touch).
     noBtn.addEventListener('mouseover', moveButton);
-    noBtn.addEventListener('touchstart', (e) => {
+    noBtn.addEventListener('click', (e) => {
       e.preventDefault();
       moveButton();
-    }, { passive: false });
-    noBtn.addEventListener('click', moveButton);
+    });
+
+    // Re-check bounds if the screen rotates or resizes so it's never stuck off-screen
+    window.addEventListener('resize', () => {
+      const rect = noBtn.getBoundingClientRect();
+      const vw = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      if (rect.right > vw || rect.bottom > vh || rect.left < 0 || rect.top < 0) {
+        if (noBtn.style.position === 'fixed') moveButton();
+      }
+    });
 
     yesBtn.addEventListener('click', () => {
       gameScreen.classList.add('hidden');
