@@ -2,13 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Will You Be My Valentine?</title>
   <style>
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
-      height: 100vh;
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -16,9 +22,9 @@
       font-family: 'Arial', sans-serif;
       overflow: hidden;
       position: relative;
+      padding: 16px;
     }
 
-    /* Floating animated flowers background */
     .flower {
       position: fixed;
       top: -60px;
@@ -50,18 +56,20 @@
       border: 1px solid rgba(120, 180, 255, 0.25);
       position: relative;
       z-index: 10;
+      width: 100%;
+      max-width: 420px;
     }
 
     h1 {
       color: #7ec8ff;
       margin-bottom: 10px;
-      font-size: 2.5rem;
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
       text-shadow: 0 0 15px rgba(126, 200, 255, 0.5);
     }
 
     p {
       color: #cfe4ff;
-      font-size: 1.2rem;
+      font-size: clamp(0.95rem, 3vw, 1.2rem);
       margin-bottom: 30px;
     }
 
@@ -74,13 +82,14 @@
     }
 
     button {
-      padding: 15px 30px;
-      font-size: 1.2rem;
+      padding: 14px 26px;
+      font-size: clamp(0.95rem, 3vw, 1.2rem);
       border: none;
       border-radius: 50px;
       cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
       font-weight: bold;
+      white-space: nowrap;
     }
 
     #yesBtn {
@@ -118,7 +127,7 @@
     }
 
     .heart-emoji {
-      font-size: 3rem;
+      font-size: clamp(2rem, 8vw, 3rem);
       margin-top: 20px;
       animation: beat 1s infinite;
     }
@@ -127,16 +136,28 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.2); }
     }
+
+    @media (min-width: 600px) {
+      .container {
+        padding: 50px;
+        max-width: 480px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .container {
+        padding: 28px 20px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <div id="flowerLayer"></div>
 
-  <!-- The Game Screen -->
   <div class="container" id="gameScreen">
     <h1>Crush moko no? 👀</h1>
-    <p>Tanong lang naman eh😜</p>
+    <p>Tanong lang naman eh 😜</p>
 
     <div class="buttons">
       <button id="yesBtn">Oo! 😁</button>
@@ -144,10 +165,9 @@
     </div>
   </div>
 
-  <!-- The Success Screen -->
   <div class="container hidden" id="successMessage">
     <h1>Yehey! 🎉</h1>
-    <p>Sabi ko na eh, nahiya kapa.</p>
+    <p>Sabi ko na eh, nahiya ka pa.</p>
     <div class="heart-emoji">🫶🫶</div>
     <p style="margin-top: 20px; font-size: 0.9rem; color: #9fc4ec;">HAHAHAHAHA</p>
   </div>
@@ -159,10 +179,11 @@
     const successMessage = document.getElementById('successMessage');
     const flowerLayer = document.getElementById('flowerLayer');
 
-    // Create floating flower background
+    const isSmallScreen = window.innerWidth < 600;
+
     const flowerEmojis = ['🌸', '🌼', '💠', '❄️', '🌷'];
     function createFlowers() {
-      const count = 25;
+      const count = isSmallScreen ? 14 : 25;
       for (let i = 0; i < count; i++) {
         const flower = document.createElement('div');
         flower.className = 'flower';
@@ -178,13 +199,12 @@
     }
     createFlowers();
 
-    // Function to move the "No" button randomly
     function moveButton() {
       const maxWidth = window.innerWidth - noBtn.offsetWidth - 20;
       const maxHeight = window.innerHeight - noBtn.offsetHeight - 20;
 
-      const randomX = Math.floor(Math.random() * maxWidth);
-      const randomY = Math.floor(Math.random() * maxHeight);
+      const randomX = Math.max(10, Math.floor(Math.random() * maxWidth));
+      const randomY = Math.max(10, Math.floor(Math.random() * maxHeight));
 
       noBtn.style.position = 'fixed';
       noBtn.style.left = randomX + 'px';
@@ -193,9 +213,11 @@
       noBtn.style.transform = 'none';
     }
 
-    noBtn.addEventListener('mouseover', () => {
+    noBtn.addEventListener('mouseover', moveButton);
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
       moveButton();
-    });
+    }, { passive: false });
     noBtn.addEventListener('click', moveButton);
 
     yesBtn.addEventListener('click', () => {
@@ -204,11 +226,11 @@
       createConfetti();
     });
 
-    // Simple Confetti Effect (Visual Flair) - blue tones
     function createConfetti() {
       const colors = ['#2e86de', '#7ec8ff', '#cfe4ff', '#1b6fc9', '#a3d5ff'];
+      const count = isSmallScreen ? 30 : 50;
 
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < count; i++) {
         const confetti = document.createElement('div');
         confetti.style.position = 'fixed';
         confetti.style.width = '10px';
